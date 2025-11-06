@@ -28,15 +28,16 @@
 
   <h2>Bonjour, bienvenue chez les Sauvage !</h2>
 
-  <div>
+  <div id="datetime">Chargement…</div>
+
+  <div><h2>
     <label for="salarie">Je suis :</label>
     <select id="salarie">
       <option value="Margot">Margot</option>
       <option value="Ana-Maria">Ana-Maria</option>
     </select>
+  </h2>
   </div>
-
-  <div id="datetime">Chargement…</div>
 
   <div>
     <button onclick="envoyerAction('debut')">Début d'intervention</button>
@@ -49,7 +50,8 @@
       const date = maintenant.toLocaleDateString('fr-FR');
       const heure = maintenant.toLocaleTimeString('fr-FR');
       document.getElementById('datetime').textContent =
-        'Nous sommes le ' + date + ' — Il est ' + heure;
+        'Il est ' + heure + ' (le '+ date + ')';
+
     }
 
     // Mise à jour immédiate
@@ -63,7 +65,10 @@
                   encodeURIComponent(nom) +
                   '&action=' + action;
       fetch(url)
-        .then(() => alert('Heure enregistrée pour ' + nom + ' (' + action + ')'))
+        .then(() => {
+          alert('Heure enregistrée pour ' + nom + ' (' + action + ')');
+	        window.close();
+         })
         .catch(() => alert("Erreur lors de l'envoi."));
     }
 
