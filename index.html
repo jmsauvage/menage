@@ -5,75 +5,182 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sauvage</title>
   <style>
+    :root {
+      --vert: #2e7d32;
+      --rouge: #c62828;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
     body {
-      font-family: sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      color: #1f2933;
+      background: url('fond.jpeg') no-repeat center center;
+      background-size: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.6);
+      z-index: 0;
+    }
+
+    .carte {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18);
+      padding: 28px 22px 30px;
       text-align: center;
-      padding: 30px;
     }
-    select, button {
-      margin: 10px;
-      padding: 10px;
-      font-size: 16px;
+
+    h1 {
+      font-size: 1.6em;
+      margin: 0 0 6px;
     }
+
     #datetime {
-      font-size: 1.2em;
-      margin-top: 10px;
+      font-size: 1.15em;
+      margin: 8px 0 18px;
+      color: #444;
     }
+
+    .champ {
+      margin: 0 0 22px;
+    }
+
     label {
-      font-size: 16px;
+      display: block;
+      font-size: 1.1em;
+      font-weight: 600;
+      margin-bottom: 8px;
     }
+
+    select {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.15em;
+      border-radius: 12px;
+      border: 1px solid #cbd2d9;
+      background: #fff;
+      color: #1f2933;
+      text-align: center;
+      text-align-last: center;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .boutons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      font-size: 1.15em;
+      font-weight: 600;
+      border: none;
+      border-radius: 14px;
+      color: #fff;
+      cursor: pointer;
+      transition: transform .05s ease, opacity .2s ease;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    #btn-debut { background: var(--vert); }
+    #btn-fin { background: var(--rouge); }
   </style>
 </head>
 <body>
+  <main class="carte">
+    <h1>Bonjour, bienvenue chez les Sauvage&nbsp;!</h1>
 
-  <h2>Bonjour, bienvenue chez les Sauvage !</h2>
+    <div id="datetime">Chargement…</div>
 
-  <div id="datetime">Chargement…</div>
+    <div class="champ">
+      <label for="salarie">Je suis&nbsp;:</label>
+      <select id="salarie">
+        <option value="Aurelie">Aurélie</option>
+        <option value="Ana-Maria">Ana-Maria</option>
+        <option value="Margot">Margot</option>
+      </select>
+    </div>
 
-  <div><h2>
-    <label for="salarie">Je suis :</label>
-    <select id="salarie">
-	  <option value="Aurelie">Aurélie</option>		
-	  <option value="Ana-Maria">Ana-Maria</option>
-      <option value="Margot">Margot</option>
-    </select>
-  </h2>
-  </div>
-
-  <div>
-    <button onclick="envoyerAction('debut')">Début d'intervention</button>
-    <button onclick="envoyerAction('fin')">Fini pour aujourd'hui</button>
-  </div>
+    <div class="boutons">
+      <button id="btn-debut" onclick="envoyerAction('debut')">Début d'intervention</button>
+      <button id="btn-fin" onclick="envoyerAction('fin')">Fini pour aujourd'hui</button>
+    </div>
+  </main>
 
   <script>
-    function updateDateTime() {
-      const maintenant = new Date();
-      const date = maintenant.toLocaleDateString('fr-FR');
-      const heure = maintenant.toLocaleTimeString('fr-FR');
-      document.getElementById('datetime').textContent =
-        'Il est ' + heure + ' (le '+ date + ')';
+    var selectSalarie = document.getElementById('salarie');
 
+    function chargerSelection() {
+      var sauvegarde = localStorage.getItem('salarie');
+      if (sauvegarde) {
+        var valeurs = Array.prototype.map.call(selectSalarie.options, function (o) { return o.value; });
+        if (valeurs.indexOf(sauvegarde) !== -1) {
+          selectSalarie.value = sauvegarde;
+        }
+      }
     }
 
-    // Mise à jour immédiate
+    function sauvegarderSelection() {
+      localStorage.setItem('salarie', selectSalarie.value);
+    }
+
+    selectSalarie.addEventListener('change', sauvegarderSelection);
+    chargerSelection();
+
+    function updateDateTime() {
+      var maintenant = new Date();
+      var date = maintenant.toLocaleDateString('fr-FR');
+      var heure = maintenant.toLocaleTimeString('fr-FR');
+      document.getElementById('datetime').textContent =
+        'Il est ' + heure + ' (le ' + date + ')';
+    }
+
     updateDateTime();
-    // Mise à jour toutes les secondes
     setInterval(updateDateTime, 1000);
 
     function envoyerAction(action) {
-      const nom = document.getElementById('salarie').value;
-      const url = 'https://hook.eu2.make.com/4hz04ajjxwy3drpvcbc8tdfub3icmvcr?salarie=' +
-                  encodeURIComponent(nom) +
-                  '&action=' + action;
+      sauvegarderSelection();
+      var nom = selectSalarie.value;
+      var url = 'https://hook.eu2.make.com/4hz04ajjxwy3drpvcbc8tdfub3icmvcr?salarie=' +
+                encodeURIComponent(nom) +
+                '&action=' + action;
       fetch(url)
-        .then(() => {
+        .then(function () {
           alert('Heure enregistrée pour ' + nom + ' (' + action + ')');
-	        window.close();
-         })
-        .catch(() => alert("Erreur lors de l'envoi."));
+          window.close();
+        })
+        .catch(function () {
+          alert("Erreur lors de l'envoi.");
+        });
     }
-
   </script>
-
 </body>
 </html>
